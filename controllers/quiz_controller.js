@@ -14,11 +14,24 @@ exports.load = function(req, res, next, quizId) {
 
 // GET /quizes
 exports.index = function(req, res) {
-  models.Quiz.findAll().then(
-    function(quizes) {
-      res.render('quizes/index', { quizes: quizes});
-    }
-  ).catch(function(error) { next(error);})
+  // Si no existe el parámetro search, busca todos los elementos.
+  if (req.query.search === undefined)
+  {
+    models.Quiz.findAll().then(
+      function(quizes) {
+        res.render('quizes/index', { quizes: quizes});
+      }
+    ).catch(function(error) { next(error);})
+  }
+  else {
+    // Si se ha especificado un patrón de búsqueda, filtra las
+    // preguntas que satisfacen el patrón.
+    models.Quiz.findAll({where: ["pregunta like ?", "%"+req.query.search+"%"]}).then(
+      function(quizes) {
+        res.render('quizes/index', { quizes: quizes});
+      }
+    ).catch(function(error) { next(error);})
+  }
 };
 
 // GET /quizes/:id
